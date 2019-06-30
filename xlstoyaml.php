@@ -1,12 +1,18 @@
 <?php
 
+// # Имя файла исходного (INPUTFILE) и выходного (OUTPUTFILE)
 define('INPUTFILE','pricelist.xlsx');
 define('OUTPUTFILE','pricelist.xml');
 
-define("SHOP_NAME", "Магазин 22 Градуса");
-define("SHOP_DESCRIPTION", "Фізична особа-підприємець Теплінська Катерина Андріївна. Интернет-магазин 22 Градуса – официальный дилер завода производителя ТМ UDEN-S");
-define("SHOP_URL", "https://shop.uden-s.ua/");
+// # Название (SHOP_NAME) И описание (SHOP_DESCRIPTION) и адрес в сети (SHOP_URL) магазина. Поля обязательные для успешной загрузки
 
+define("SHOP_NAME", "Магазин");
+define("SHOP_DESCRIPTION", "Фізична особа-підприємець");
+define("SHOP_URL", "https://example.com");
+
+// #############################################################################
+// ####################### ОСТАЛЬНОЕ НЕ ТРОГАТЬ !!!!!! #########################
+// #############################################################################
 //===========================
 
 require_once 'vendor/PHPExcel.php';
@@ -16,7 +22,7 @@ class XMLtoYaml {
 	private $products=array();
 	private $categories=array();
 
-	public function __construct($inputfile)  
+	public function __construct($inputfile)
 	// При старте считываем лист с товарами и категориями
 
 	{
@@ -35,7 +41,7 @@ class XMLtoYaml {
 		unset($xlsData);
 	}
 
-	private function getCategoryId($name) 
+	private function getCategoryId($name)
 	// Получение ID категории по имени
 	{
 
@@ -46,9 +52,9 @@ class XMLtoYaml {
 		die(sprintf("ВНИМАНИЕ !!! КАТЕГОРИЯ %s УКАЗАННАЯ В ТОВАРЕ НЕ НАЙДЕНА В СПИСКЕ КАТЕГОРИЙ !!!\n",$name));
 	}
 
-	private function getProductParams($heads,$product) 
+	private function getProductParams($heads,$product)
 	// Получение атрибутов товаров
-	
+
 	{
 		$params=array();
 
@@ -66,12 +72,13 @@ class XMLtoYaml {
 	}
 
 	public function getXMLData() {
-	// Получаем данные для обработки		
+	// Получаем данные для обработки
 
 		$xml_data=array();
 
 		foreach ($this->products as $key => $product) {
 				if ($key==0) continue;
+				if (empty($product[2])) continue;
 				$xml_data[$product[0]]=array(
 					'url'=>htmlspecialchars($product[13]),
 					'price'=>$product[4],
@@ -85,12 +92,12 @@ class XMLtoYaml {
 					'params'=>$this->getProductParams($this->products[0],$product),
 				);
 		}
-		
+
 		return $this->SaveXML(OUTPUTFILE,$xml_data);
 	}
 
 
-	private function SaveXML($file,$outdata) 
+	private function SaveXML($file,$outdata)
 	// Формируем файл для вывода.
 
 	{
@@ -133,13 +140,13 @@ class XMLtoYaml {
 			}
 
 			$output.= '</offer>';
-		
+
 		}
 
 		$output.= '</offers></shop></yml_catalog>';
-		
+
 		return (file_put_contents($file,$output)) ? count($outdata) : False;
-		
+
 	}
 
 	private function getXLS($inputFileName)
